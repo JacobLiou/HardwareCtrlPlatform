@@ -32,8 +32,9 @@ var power = await meter.ReadPowerAsync(channel: 0, CancellationToken.None);
 
 ## Boundaries
 
-- Station apps depend on `Device.Client` + `Device.Contracts`
+- Station apps depend on `Device.Hosting` (which pulls `Device.Client` + drivers)
 - Do not reference `Device.Drivers.Udl` or `Device.Server` directly from UI projects
+- Native drivers: see `docs/Adding-Native-Driver.md`
 - Native handles / COM stay inside Drivers
 
 See also `docs/Device-Capability-Catalog.md` and `docs/Error-Code-Catalog.md`.

@@ -49,6 +49,7 @@ It is intentionally free of product station business logic.
 | `Device.Client` | Commands + proxies + in-memory client |
 | `Device.Drivers.Udl` | UDL2 COM adapters for capabilities |
 | `Device.Drivers.Samples` | Native/inline sample driver |
+| `Device.Hosting` | Config + composite resolver + `AddDevicePlatform` |
 | `Device.Simulators` | Simulator devices + `SimulatorPlatformFactory` |
 | `Station.Workflow` | Empty workflow shell |
 | `Station.App` | WPF station template |
@@ -58,22 +59,18 @@ It is intentionally free of product station business logic.
 | Type | Where | Role |
 |------|-------|------|
 | `IOpticalPowerMeter` / `ILaserSource` / `IOpticalSwitch` | `Device.Contracts` | Capability contracts |
+| `CompositeDriverResolver` | `Device.Hosting` | Simulator / Udl / Native routing |
+| `AddDevicePlatform` | `Device.Hosting` | DI bootstrap from `Devices` config |
 | `InMemoryUdlServerClient` | `Device.Client` | In-proc bridge to runtime |
-| `SimulatorPlatformFactory` | `Device.Simulators` | Spin up simulator stack |
 | `IStationWorkflow` | `Station.Workflow` | Station use-case surface |
 | `EmptyStationWorkflow` | `Station.Workflow` | Template implementation |
-| `MainViewModel` | `Station.App` | Start/Abort bound to workflow |
-
-## Suggested flow when building a real station
-
-1. Copy `Station.App`, rename
-2. Expand states + `IStationWorkflow` implementation
-3. Register Simulator devices; swap to UDL resolver for real hardware
-4. Add persistence / MES adapters only when required
+| `MainViewModel` | `Station.App` | Start/Abort + device count |
 
 ## Docs
 
 - `docs/Device-Capability-Catalog.md`
 - `docs/UDL-Device-Platform-README.md`
 - `docs/Error-Code-Catalog.md`
+- `docs/Adding-Native-Driver.md`
 - `docs/superpowers/specs/2026-09-09-hardwarectrlplatform-skeleton-design.md`
+- `docs/superpowers/specs/2026-09-09-p1-device-hosting-design.md`

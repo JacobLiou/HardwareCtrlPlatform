@@ -13,14 +13,15 @@ Personal reusable platform for **quickly scaffolding station HMI / workstation c
 
 ```text
 Station.App -> Station.Workflow
-Station.App -> Device.Client / Device.Contracts   (optional hardware)
-Device.Client -> Device.Server -> Device.Contracts
-Device.Drivers.* / Device.Simulators -> Device.Server / Contracts
+Station.App -> Device.Hosting
+Device.Hosting -> Device.Client / Simulators / Drivers.Udl / Drivers.Samples / Server / Contracts
 ```
 
-- View / ViewModel: display + call `IStationWorkflow` (and later thin device facades). No COM / UDL ProgID in UI.
-- Workflow: explicit states, cancel/timeout hooks later; no P/Invoke.
-- Device drivers and COM stay under `Device.Drivers.*` / Infrastructure adapters only.
+- View / ViewModel: display + call `IStationWorkflow`. No COM / UDL ProgID in UI.
+- Device wiring: `AddDevicePlatform` + `Devices:Entries` (`Simulator` | `Udl` | `Native`).
+- When UDL is incomplete: implement a **Native** driver (see `docs/Adding-Native-Driver.md`).
+- Workflow: explicit states; no P/Invoke.
+- Drivers and COM stay under `Device.Drivers.*` / Hosting composition only.
 
 ## Stack
 

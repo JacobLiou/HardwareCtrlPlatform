@@ -9,5 +9,6 @@ alwaysApply: true
 - Single solution: `HardwareCtrlPlatform.sln`.
 - Stack: .NET 8, WPF (`net8.0-windows`), CommunityToolkit.Mvvm. Default architecture **x86** for UDL2 COM.
 - Do not invent ProgIDs, MES fields, or device commands. Use Simulator + interfaces until confirmed.
-- Station App must not reference `Device.Drivers.Udl` / `Device.Server` directly — use `Device.Client`.
+- Station App depends on `Device.Hosting` (not Drivers/Server directly).
+- Providers: `Simulator` | `Udl` | `Native` (Native when UDL is incomplete).
 ---

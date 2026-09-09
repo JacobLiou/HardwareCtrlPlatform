@@ -1,4 +1,5 @@
 using System.Windows;
+using Device.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,7 +32,7 @@ public partial class App : System.Windows.Application
             .ConfigureServices((context, services) =>
             {
                 services.AddSingleton<IStationWorkflow, EmptyStationWorkflow>();
-                // TODO: register Device.Client / Simulator stack when the station needs hardware.
+                services.AddDevicePlatform(context.Configuration);
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<MainWindow>();
             })

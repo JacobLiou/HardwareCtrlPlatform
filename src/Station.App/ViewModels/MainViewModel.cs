@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Device.Hosting;
 using Microsoft.Extensions.Configuration;
 using Station.Workflow;
 
@@ -9,10 +10,14 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IStationWorkflow _workflow;
 
-    public MainViewModel(IStationWorkflow workflow, IConfiguration configuration)
+    public MainViewModel(
+        IStationWorkflow workflow,
+        IConfiguration configuration,
+        IDeviceRegistrationSummary devices)
     {
         _workflow = workflow;
         Title = configuration["Station:DisplayName"] ?? "Station Template";
+        DevicesText = $"Devices registered: {devices.Count}";
         RefreshState();
     }
 
@@ -21,6 +26,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _stateText = WorkstationState.Idle.ToString();
+
+    [ObservableProperty]
+    private string _devicesText = "Devices registered: 0";
 
     [RelayCommand]
     private async Task StartAsync()

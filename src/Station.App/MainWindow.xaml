@@ -18,16 +18,16 @@
                FontWeight="SemiBold"
                Text="{Binding Title}" />
 
-    <TextBlock Grid.Row="1"
-               Margin="0,12,0,0"
-               FontSize="16"
-               Text="{Binding StateText, StringFormat=State: {0}}" />
+    <StackPanel Grid.Row="1" Margin="0,12,0,0">
+      <TextBlock FontSize="16" Text="{Binding StateText, StringFormat=State: {0}}" />
+      <TextBlock Margin="0,6,0,0" Opacity="0.8" Text="{Binding DevicesText}" />
+    </StackPanel>
 
     <TextBlock Grid.Row="2"
                Margin="0,16,0,0"
                TextWrapping="Wrap"
                Opacity="0.75"
-               Text="Copy this project to start a new station HMI. Wire Device.Client for UDL capabilities; extend Station.Workflow for real process logic." />
+               Text="Copy this project to start a new station HMI. Devices come from appsettings via Device.Hosting (Simulator / Udl / Native). Extend Station.Workflow for process logic." />
 
     <StackPanel Grid.Row="3"
                 Orientation="Horizontal"

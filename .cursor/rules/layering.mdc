@@ -7,13 +7,12 @@ alwaysApply: true
 
 ```text
 Station.App -> Station.Workflow
-Station.App -> Device.Client / Device.Contracts
-Device.Client -> Device.Server -> Device.Contracts
-Device.Drivers.* / Device.Simulators -> Device.Server / Contracts
+Station.App -> Device.Hosting
+Device.Hosting -> Client / Simulators / Drivers.* / Server / Contracts
 ```
 
 - View: display/input only.
-- ViewModel: call `IStationWorkflow` (and thin device facades later). No COM.
-- Workflow: explicit states; no P/Invoke / SQL / HTTP.
+- ViewModel: call `IStationWorkflow`. No COM.
+- Device wiring via `AddDevicePlatform` (`Simulator` | `Udl` | `Native`).
 - Drivers: only place for UDL COM / native handles.
 ---
