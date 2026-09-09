@@ -7,7 +7,8 @@ Personal reusable platform for **quickly scaffolding station HMI / workstation c
 - Reuse company **UDL** behind capability interfaces (`Device.Contracts` + `Device.Drivers.Udl`).
 - Provide a **Workflow empty shell** (`Station.Workflow`) and a **copyable WPF template** (`Station.App`).
 - No product-specific process (no invented MES fields, no fake device commands).
-- Prefer Simulator for development; pin **x86** when talking to UDL2 COM.
+- Prefer Simulator for development; pin **x86** when using UDL2 COM.
+- Workflow stability (BCL only, **no Polly**): Abort cancels cooperatively → Idle; step/run timeout or exception → Fault; Reset clears Fault → Idle. Use `StationWorkflowBase` + `WorkflowStepRunner`.
 
 ## Layering
 
@@ -20,7 +21,7 @@ Device.Hosting -> Device.Client / Simulators / Drivers.Udl / Drivers.Samples / S
 - View / ViewModel: display + call `IStationWorkflow`. No COM / UDL ProgID in UI.
 - Device wiring: `AddDevicePlatform` + `Devices:Entries` (`Simulator` | `Udl` | `Native`).
 - When UDL is incomplete: implement a **Native** driver (see `docs/Adding-Native-Driver.md`).
-- Workflow: explicit states; no P/Invoke.
+- Workflow: explicit states; cancel / timeout / Fault via `StationWorkflowBase` (no Polly).
 - Drivers and COM stay under `Device.Drivers.*` / Hosting composition only.
 
 ## Stack
@@ -29,12 +30,7 @@ Device.Hosting -> Device.Client / Simulators / Drivers.Udl / Drivers.Samples / S
 - CommunityToolkit.Mvvm, Microsoft.Extensions.Hosting
 - Default host architecture: **x86** (`PlatformTarget=x86`, publish RID `win-x86`) because UDL2 COM is win32
 
-## Reliability baseline (when you add real stations)
-
-- Explicit state machine (no boolean spaghetti)
-- Spec / thresholds outside UI
-- Local persistence before external upload (when data pipeline exists)
-- Bounded retries; never invent unknown UDL/MES contracts
+- Reliability baseline (when you add real stations): Spec outside UI; local save before upload; bounded retries; never invent unknown UDL/MES contracts.
 
 ## Verify
 

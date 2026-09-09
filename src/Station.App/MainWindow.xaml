@@ -21,13 +21,17 @@
     <StackPanel Grid.Row="1" Margin="0,12,0,0">
       <TextBlock FontSize="16" Text="{Binding StateText, StringFormat=State: {0}}" />
       <TextBlock Margin="0,6,0,0" Opacity="0.8" Text="{Binding DevicesText}" />
+      <TextBlock Margin="0,6,0,0"
+                 Foreground="DarkRed"
+                 TextWrapping="Wrap"
+                 Text="{Binding FaultText}" />
     </StackPanel>
 
     <TextBlock Grid.Row="2"
                Margin="0,16,0,0"
                TextWrapping="Wrap"
                Opacity="0.75"
-               Text="Copy this project to start a new station HMI. Devices come from appsettings via Device.Hosting (Simulator / Udl / Native). Extend Station.Workflow for process logic." />
+               Text="Copy this project to start a new station HMI. Workflow supports Start / Abort (cancel) / Reset (from Fault). Devices via Device.Hosting (Simulator / Udl / Native)." />
 
     <StackPanel Grid.Row="3"
                 Orientation="Horizontal"
@@ -37,8 +41,12 @@
               Content="Start"
               Command="{Binding StartCommand}" />
       <Button Width="100"
+              Margin="0,0,12,0"
               Content="Abort"
               Command="{Binding AbortCommand}" />
+      <Button Width="100"
+              Content="Reset"
+              Command="{Binding ResetCommand}" />
     </StackPanel>
   </Grid>
 </Window>

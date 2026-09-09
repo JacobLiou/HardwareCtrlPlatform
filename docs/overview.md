@@ -31,7 +31,7 @@ It is intentionally free of product station business logic.
                               │
 ┌─────────────────────────────▼──────────────────────────────────────┐
 │ Station.Workflow                                                   │
-│  WorkstationState · StateTransitionGuard · IStationWorkflow        │
+│  StationWorkflowBase · StepRunner · Fault/Reset · IStationWorkflow  │
 └────────────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────── Device platform ───────────────────────────┐
@@ -51,7 +51,7 @@ It is intentionally free of product station business logic.
 | `Device.Drivers.Samples` | Native/inline sample driver |
 | `Device.Hosting` | Config + composite resolver + `AddDevicePlatform` |
 | `Device.Simulators` | Simulator devices + `SimulatorPlatformFactory` |
-| `Station.Workflow` | Empty workflow shell |
+| `Station.Workflow` | Workflow shell: cancel / timeout / Fault / Reset |
 | `Station.App` | WPF station template |
 
 ## Important types
@@ -62,9 +62,11 @@ It is intentionally free of product station business logic.
 | `CompositeDriverResolver` | `Device.Hosting` | Simulator / Udl / Native routing |
 | `AddDevicePlatform` | `Device.Hosting` | DI bootstrap from `Devices` config |
 | `InMemoryUdlServerClient` | `Device.Client` | In-proc bridge to runtime |
+| `StationWorkflowBase` | `Station.Workflow` | Abort / timeout / Fault / Reset |
+| `WorkflowStepRunner` | `Station.Workflow` | Per-step timeout + bounded retry |
 | `IStationWorkflow` | `Station.Workflow` | Station use-case surface |
-| `EmptyStationWorkflow` | `Station.Workflow` | Template implementation |
-| `MainViewModel` | `Station.App` | Start/Abort + device count |
+| `EmptyStationWorkflow` | `Station.Workflow` | Template no-op implementation |
+| `MainViewModel` | `Station.App` | Start / Abort / Reset + device count |
 
 ## Docs
 
@@ -74,3 +76,4 @@ It is intentionally free of product station business logic.
 - `docs/Adding-Native-Driver.md`
 - `docs/superpowers/specs/2026-09-09-hardwarectrlplatform-skeleton-design.md`
 - `docs/superpowers/specs/2026-09-09-p1-device-hosting-design.md`
+- `docs/superpowers/specs/2026-09-09-p2-workflow-stability-design.md`

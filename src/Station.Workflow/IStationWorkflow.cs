@@ -5,7 +5,13 @@ public interface IStationWorkflow
 {
     WorkstationState State { get; }
 
+    WorkstationFaultInfo? FaultInfo { get; }
+
+    event EventHandler<WorkstationState>? StateChanged;
+
     Task StartAsync(CancellationToken cancellationToken = default);
 
     Task AbortAsync(CancellationToken cancellationToken = default);
+
+    Task ResetAsync(CancellationToken cancellationToken = default);
 }
