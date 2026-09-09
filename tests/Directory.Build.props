@@ -1,0 +1,8 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+          Condition="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../')) != ''" />
+  <!-- Match workstation x86 (UDL COM / App); testhost must load X86 Infra assemblies. -->
+  <PropertyGroup>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+</Project>

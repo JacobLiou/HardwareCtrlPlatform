@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Device.Drivers.Udl</RootNamespace>
+    <AssemblyName>Device.Drivers.Udl</AssemblyName>
+    <!-- Host process must be x86 for win32 COM; library may be AnyCPU under src/Directory.Build.props. -->
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Device.Contracts\Device.Contracts.csproj" />
+    <ProjectReference Include="..\Device.Server\Device.Server.csproj" />
+    <ProjectReference Include="..\Device.Client\Device.Client.csproj" />
+  </ItemGroup>
+  <!--
+    Confirmed TypeLib: UDL2_ServerLib {F318EABB-DCD0-47C1-A93D-AA9AE9440CF0} 1.0
+    SDK-style `dotnet build` cannot ResolveComReference (MSB4803); Interop is tlbimp output of that typelib.
+    Regenerate: TlbImp.exe C:\Public-T\Software\UDL\UDL2_Server.dll /out:lib\Interop.UDL2_ServerLib.dll /namespace:UDL2_ServerLib
+  -->
+  <ItemGroup>
+    <Reference Include="UDL2_ServerLib">
+      <HintPath>lib\Interop.UDL2_ServerLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

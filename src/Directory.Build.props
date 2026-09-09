@@ -1,0 +1,8 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))"
+          Condition="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../')) != ''" />
+  <!-- UDL2 COM is win32; workstation App must run as x86 (do not override root to AnyCPU). -->
+  <PropertyGroup>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+</Project>

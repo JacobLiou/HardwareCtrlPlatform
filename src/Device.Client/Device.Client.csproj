@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Device.Client</RootNamespace>
+    <AssemblyName>Device.Client</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Device.Contracts\Device.Contracts.csproj" />
+    <ProjectReference Include="..\Device.Server\Device.Server.csproj" />
+  </ItemGroup>
+</Project>

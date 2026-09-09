@@ -1,0 +1,19 @@
+---
+description: Layering for Device + Station
+alwaysApply: true
+---
+
+# Layering
+
+```text
+Station.App -> Station.Workflow
+Station.App -> Device.Client / Device.Contracts
+Device.Client -> Device.Server -> Device.Contracts
+Device.Drivers.* / Device.Simulators -> Device.Server / Contracts
+```
+
+- View: display/input only.
+- ViewModel: call `IStationWorkflow` (and thin device facades later). No COM.
+- Workflow: explicit states; no P/Invoke / SQL / HTTP.
+- Drivers: only place for UDL COM / native handles.
+---

@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+.vscode/*.log
+TestResults/
+*.user
+*.suo
+runtime-data/
+publish/

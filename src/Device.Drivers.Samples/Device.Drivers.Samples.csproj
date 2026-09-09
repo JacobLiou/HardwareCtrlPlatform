@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Device.Drivers.Samples</RootNamespace>
+    <AssemblyName>Device.Drivers.Samples</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Device.Contracts\Device.Contracts.csproj" />
+    <ProjectReference Include="..\Device.Server\Device.Server.csproj" />
+    <ProjectReference Include="..\Device.Client\Device.Client.csproj" />
+    <ProjectReference Include="..\Device.Simulators\Device.Simulators.csproj" />
+    <ProjectReference Include="..\Device.Drivers.Udl\Device.Drivers.Udl.csproj" />
+  </ItemGroup>
+</Project>

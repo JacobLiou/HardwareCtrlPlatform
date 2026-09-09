@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- UDL2 COM is win32; default hosts/tests under src|tests pin x86 via their Directory.Build.props -->
+  </PropertyGroup>
+</Project>

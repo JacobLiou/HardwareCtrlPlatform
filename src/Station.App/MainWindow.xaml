@@ -1,0 +1,44 @@
+<Window x:Class="Station.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding Title}"
+        Height="360"
+        Width="560"
+        WindowStartupLocation="CenterScreen">
+  <Grid Margin="24">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TextBlock Grid.Row="0"
+               FontSize="22"
+               FontWeight="SemiBold"
+               Text="{Binding Title}" />
+
+    <TextBlock Grid.Row="1"
+               Margin="0,12,0,0"
+               FontSize="16"
+               Text="{Binding StateText, StringFormat=State: {0}}" />
+
+    <TextBlock Grid.Row="2"
+               Margin="0,16,0,0"
+               TextWrapping="Wrap"
+               Opacity="0.75"
+               Text="Copy this project to start a new station HMI. Wire Device.Client for UDL capabilities; extend Station.Workflow for real process logic." />
+
+    <StackPanel Grid.Row="3"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right">
+      <Button Width="100"
+              Margin="0,0,12,0"
+              Content="Start"
+              Command="{Binding StartCommand}" />
+      <Button Width="100"
+              Content="Abort"
+              Command="{Binding AbortCommand}" />
+    </StackPanel>
+  </Grid>
+</Window>

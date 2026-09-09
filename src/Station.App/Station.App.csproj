@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x86</PlatformTarget>
+    <RootNamespace>Station.App</RootNamespace>
+    <AssemblyName>Station.App</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Station.Workflow\Station.Workflow.csproj" />
+    <!-- Prefer Device.Client (+ Contracts) when wiring real/simulated devices; do not reference Drivers.Udl or Server from App. -->
+    <ProjectReference Include="..\Device.Client\Device.Client.csproj" />
+    <ProjectReference Include="..\Device.Contracts\Device.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

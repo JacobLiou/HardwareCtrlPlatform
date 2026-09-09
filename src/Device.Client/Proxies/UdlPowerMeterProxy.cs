@@ -1,0 +1,44 @@
+using Device.Client.Commands;
+using Device.Contracts.Capabilities;
+using Device.Contracts.Common;
+
+namespace Device.Client.Proxies;
+
+public sealed class UdlPowerMeterProxy(IUdlServerClient client, DeviceIdentity identity) : IOpticalPowerMeter
+{
+    public DeviceIdentity Identity { get; } = identity;
+
+    public DeviceState State { get; private set; } = DeviceState.Unknown;
+
+    public async Task<DeviceResult<DeviceHealth>> GetHealthAsync(CancellationToken cancellationToken)
+    {
+        var command = DeviceCommand.Create(Identity.DeviceId, "IDevice", "GetHealth");
+        var result = await client.SendAsync<DeviceHealth>(command, cancellationToken).ConfigureAwait(false);
+        if (result.Success && result.Data is not null)
+        {
+            State = result.Data.State;
+        }
+
+        return result;
+    }
+
+    public Task<DeviceResult<OpticalPower>> ReadPowerAsync(int channel, CancellationToken cancellationToken)
+    {
+        var command = DeviceCommand.Create(
+            Identity.DeviceId,
+            "IOpticalPowerMeter",
+            "ReadPower",
+            new Dictionary<string, object?> { ["channel"] = channel });
+        return client.SendAsync<OpticalPower>(command, cancellationToken);
+    }
+
+    public Task<DeviceResult> SetWavelengthAsync(double wavelengthNm, CancellationToken cancellationToken)
+    {
+        var command = DeviceCommand.Create(
+            Identity.DeviceId,
+            "IOpticalPowerMeter",
+            "SetWavelength",
+            new Dictionary<string, object?> { ["wavelengthNm"] = wavelengthNm });
+        return client.SendAsync(command, cancellationToken);
+    }
+}

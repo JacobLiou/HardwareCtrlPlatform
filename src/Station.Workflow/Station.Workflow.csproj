@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Station.Workflow</RootNamespace>
+    <AssemblyName>Station.Workflow</AssemblyName>
+  </PropertyGroup>
+</Project>

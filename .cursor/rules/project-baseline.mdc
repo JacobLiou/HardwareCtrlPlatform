@@ -1,0 +1,13 @@
+---
+description: HardwareCtrlPlatform baseline
+alwaysApply: true
+---
+
+# Project Baseline
+
+- Reusable station HMI scaffold: **UDL capabilities** (`Device.*`) + **Workflow shell** (`Station.Workflow`) + **App template** (`Station.App`).
+- Single solution: `HardwareCtrlPlatform.sln`.
+- Stack: .NET 8, WPF (`net8.0-windows`), CommunityToolkit.Mvvm. Default architecture **x86** for UDL2 COM.
+- Do not invent ProgIDs, MES fields, or device commands. Use Simulator + interfaces until confirmed.
+- Station App must not reference `Device.Drivers.Udl` / `Device.Server` directly — use `Device.Client`.
+---
