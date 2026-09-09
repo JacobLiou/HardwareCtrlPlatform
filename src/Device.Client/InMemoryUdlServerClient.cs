@@ -2,13 +2,16 @@ using Device.Client.Commands;
 using Device.Contracts.Capabilities;
 using Device.Contracts.Common;
 using Device.Server.Execution;
+using System.Diagnostics;
 
 namespace Device.Client;
 
 /// <summary>
 /// Process-in-memory stand-in for UDLServer: routes commands through registry + executor.
 /// </summary>
-public sealed class InMemoryUdlServerClient(InProcessDeviceRuntime runtime) : IUdlServerClient
+public sealed class InMemoryUdlServerClient(
+    InProcessDeviceRuntime runtime,
+    IDeviceCommandAuditor? auditor = null) : IUdlServerClient
 {
     public Task<DeviceResult> SendAsync(DeviceCommand command, CancellationToken cancellationToken) =>
         DispatchAsync(command, cancellationToken);
@@ -41,11 +44,69 @@ public sealed class InMemoryUdlServerClient(InProcessDeviceRuntime runtime) : IU
     {
         ArgumentNullException.ThrowIfNull(command);
 
+        var sw = Stopwatch.StartNew();
+        DeviceResult result;
+        try
+        {
+            result = await DispatchCoreAsync(command, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            sw.Stop();
+        }
+
+        if (auditor is not null)
+        {
+            auditor.Record(new DeviceCommandAuditEntry(
+                DateTimeOffset.UtcNow,
+                command.DeviceId,
+                runtime.ResolveResourceId(command.DeviceId),
+                command.Capability,
+                command.Operation,
+                result.Success,
+                result.ErrorCode,
+                result.Message,
+                sw.Elapsed.TotalMilliseconds,
+                command.RequestId));
+        }
+
+        return result;
+    }
+
+    private async Task<DeviceResult> DispatchCoreAsync(DeviceCommand command, CancellationToken cancellationToken)
+    {
         return (command.Capability, command.Operation) switch
         {
             ("IDevice", "GetHealth") => await runtime.InvokeAsync(
                 command.DeviceId,
                 (device, ct) => device.GetHealthAsync(ct),
+                cancellationToken).ConfigureAwait(false),
+
+            ("IDeviceConnection", "Connect") => await runtime.InvokeAsync(
+                command.DeviceId,
+                async (device, ct) =>
+                {
+                    var connection = runtime.RequireCapability<IDeviceConnection>(device);
+                    return await connection.ConnectAsync(ct).ConfigureAwait(false);
+                },
+                cancellationToken).ConfigureAwait(false),
+
+            ("IDeviceConnection", "Disconnect") => await runtime.InvokeAsync(
+                command.DeviceId,
+                async (device, ct) =>
+                {
+                    var connection = runtime.RequireCapability<IDeviceConnection>(device);
+                    return await connection.DisconnectAsync(ct).ConfigureAwait(false);
+                },
+                cancellationToken).ConfigureAwait(false),
+
+            ("IDeviceConnection", "Reconnect") => await runtime.InvokeAsync(
+                command.DeviceId,
+                async (device, ct) =>
+                {
+                    var connection = runtime.RequireCapability<IDeviceConnection>(device);
+                    return await connection.ReconnectAsync(ct).ConfigureAwait(false);
+                },
                 cancellationToken).ConfigureAwait(false),
 
             ("IOpticalPowerMeter", "ReadPower") => await runtime.InvokeAsync(

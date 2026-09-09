@@ -156,6 +156,15 @@ public sealed class UdlEngineSession : IDisposable
         }
     }
 
+    public static void ForceCloseShared()
+    {
+        lock (Sync)
+        {
+            _shared?.Dispose();
+            _shared = null;
+        }
+    }
+
     public void Dispose()
     {
         if (_disposed)

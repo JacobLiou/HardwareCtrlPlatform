@@ -13,7 +13,7 @@ public partial class App : System.Windows.Application
 {
     private IHost? _host;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
@@ -40,6 +40,9 @@ public partial class App : System.Windows.Application
             })
             .Build();
 
+        var lifecycle = _host.Services.GetRequiredService<IDevicePlatformLifecycle>();
+        await lifecycle.ConnectAllAsync();
+
         var window = _host.Services.GetRequiredService<MainWindow>();
         window.Show();
     }
@@ -48,6 +51,12 @@ public partial class App : System.Windows.Application
     {
         if (_host is not null)
         {
+            var lifecycle = _host.Services.GetService<IDevicePlatformLifecycle>();
+            if (lifecycle is not null)
+            {
+                await lifecycle.DisconnectAllAsync(forceCloseUdlSession: true);
+            }
+
             await _host.StopAsync(TimeSpan.FromSeconds(2));
             _host.Dispose();
         }

@@ -28,7 +28,7 @@ public sealed class SampleDriverResolver : IDeviceDriverResolver
             DeviceProviderKind.Simulator => new SimulatorDriverResolver().Resolve(definition),
 
             DeviceProviderKind.Udl when definition.DriverName == UdlStubPowerMeter.DriverName =>
-                new UdlStubPowerMeter(identity),
+                CreateConnectedStub(identity),
 
             DeviceProviderKind.Native when definition.DriverName == CustomInlinePowerMeter.DriverName =>
                 CreateConnectedCustom(identity),
@@ -40,6 +40,13 @@ public sealed class SampleDriverResolver : IDeviceDriverResolver
             _ => throw new NotSupportedException(
                 $"No sample driver for Provider={definition.Provider}, Driver={definition.DriverName}.")
         };
+    }
+
+    private static UdlStubPowerMeter CreateConnectedStub(DeviceIdentity identity)
+    {
+        var meter = new UdlStubPowerMeter(identity);
+        meter.ConnectAsync(CancellationToken.None).GetAwaiter().GetResult();
+        return meter;
     }
 
     private static CustomInlinePowerMeter CreateConnectedCustom(DeviceIdentity identity)

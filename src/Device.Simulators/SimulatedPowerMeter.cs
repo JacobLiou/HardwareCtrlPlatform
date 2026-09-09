@@ -14,31 +14,49 @@ public sealed class SimulatedPowerMeter : SimulatedDeviceBase, IOpticalPowerMete
     {
     }
 
-    public Task<DeviceResult<OpticalPower>> ReadPowerAsync(int channel, CancellationToken cancellationToken)
+    public async Task<DeviceResult<OpticalPower>> ReadPowerAsync(int channel, CancellationToken cancellationToken)
     {
+        var (ok, fail) = await BeginOperationAsync<OpticalPower>(cancellationToken).ConfigureAwait(false);
+        if (!ok)
+        {
+            return fail;
+        }
+
         if (channel < 0)
         {
-            return Task.FromResult(DeviceResult<OpticalPower>.Fail(
+            return DeviceResult<OpticalPower>.Fail(
                 DeviceErrorCode.InvalidArgument,
                 "Channel must be >= 0.",
-                Identity.DeviceId));
+                Identity.DeviceId);
         }
 
         lock (_gate)
         {
-            var power = new OpticalPower(_powerDbm, "dBm", _wavelengthNm);
-            return Task.FromResult(DeviceResult<OpticalPower>.Ok(power, Identity.DeviceId));
+            var value = _powerDbm;
+            if (FaultInjector?.CorruptPowerReading == true)
+            {
+                value = double.NaN;
+            }
+
+            var power = new OpticalPower(value, "dBm", _wavelengthNm);
+            return DeviceResult<OpticalPower>.Ok(power, Identity.DeviceId);
         }
     }
 
-    public Task<DeviceResult> SetWavelengthAsync(double wavelengthNm, CancellationToken cancellationToken)
+    public async Task<DeviceResult> SetWavelengthAsync(double wavelengthNm, CancellationToken cancellationToken)
     {
+        var early = await BeginOperationAsync(cancellationToken).ConfigureAwait(false);
+        if (early is not null)
+        {
+            return early;
+        }
+
         if (wavelengthNm <= 0)
         {
-            return Task.FromResult(DeviceResult.Fail(
+            return DeviceResult.Fail(
                 DeviceErrorCode.InvalidArgument,
                 "Wavelength must be positive (nm).",
-                Identity.DeviceId));
+                Identity.DeviceId);
         }
 
         lock (_gate)
@@ -46,10 +64,9 @@ public sealed class SimulatedPowerMeter : SimulatedDeviceBase, IOpticalPowerMete
             _wavelengthNm = wavelengthNm;
         }
 
-        return Task.FromResult(DeviceResult.Ok(Identity.DeviceId));
+        return DeviceResult.Ok(Identity.DeviceId);
     }
 
-    /// <summary>Test helper to inject a power reading.</summary>
     public void SetSimulatedPowerDbm(double powerDbm)
     {
         lock (_gate)

@@ -1,7 +1,10 @@
 using Device.Client;
+using Device.Contracts.Common;
+using Device.Server.Audit;
 using Device.Server.Execution;
 using Device.Server.Registry;
 using Device.Server.Scheduling;
+using Device.Simulators;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -41,11 +44,21 @@ public static class DevicePlatformServiceCollectionExtensions
 
     private static IServiceCollection AddDevicePlatformCore(IServiceCollection services)
     {
+        services.AddSingleton<IDeviceCommandAuditor, InMemoryDeviceCommandAuditor>();
+        services.AddSingleton(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<DevicePlatformOptions>>().Value;
+            var injector = new SimulatorFaultInjector();
+            injector.Configure(options.FaultInjection ?? new FaultInjectionOptions());
+            return injector;
+        });
+
         services.AddSingleton(sp =>
         {
             var options = sp.GetRequiredService<IOptions<DevicePlatformOptions>>().Value;
             var definitions = options.ToDefinitions();
-            var resolver = new CompositeDriverResolver();
+            var injector = sp.GetRequiredService<SimulatorFaultInjector>();
+            var resolver = new CompositeDriverResolver(faultInjector: injector);
             var registry = new DeviceRegistry();
             foreach (var definition in definitions)
             {
@@ -57,7 +70,11 @@ public static class DevicePlatformServiceCollectionExtensions
         });
 
         services.AddSingleton<IUdlServerClient>(sp =>
-            new InMemoryUdlServerClient(sp.GetRequiredService<InProcessDeviceRuntime>()));
+            new InMemoryUdlServerClient(
+                sp.GetRequiredService<InProcessDeviceRuntime>(),
+                sp.GetRequiredService<IDeviceCommandAuditor>()));
+
+        services.AddSingleton<IDevicePlatformLifecycle, DevicePlatformLifecycle>();
 
         services.AddSingleton<IReadOnlyList<DeviceDefinition>>(sp =>
             sp.GetRequiredService<InProcessDeviceRuntime>().Registry.ListDefinitions());

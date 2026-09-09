@@ -25,11 +25,26 @@
         <RowDefinition Height="Auto" />
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="120" />
       </Grid.RowDefinitions>
 
       <StackPanel Grid.Row="0" Margin="0,0,0,8">
         <TextBlock FontWeight="SemiBold" Text="{Binding HeaderText}" TextWrapping="Wrap" />
         <TextBlock Margin="0,4,0,0" Opacity="0.75" Text="{Binding PanelHint}" />
+        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+          <Button Content="Connect"
+                  Width="90"
+                  Command="{Binding ConnectCommand}" />
+          <Button Content="Disconnect"
+                  Width="90"
+                  Margin="8,0,0,0"
+                  Command="{Binding DisconnectCommand}" />
+          <Button Content="Reconnect"
+                  Width="90"
+                  Margin="8,0,0,0"
+                  Command="{Binding ReconnectCommand}" />
+        </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
           <Button Content="Health"
                   Width="90"
@@ -115,6 +130,21 @@
                HorizontalScrollBarVisibility="Auto"
                FontFamily="Consolas"
                Text="{Binding LogText}" />
+
+      <DockPanel Grid.Row="4" Margin="0,8,0,4">
+        <Button DockPanel.Dock="Right"
+                Width="90"
+                Content="Refresh Audit"
+                Command="{Binding RefreshAuditCommand}" />
+        <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" Text="Audit" />
+      </DockPanel>
+      <TextBox Grid.Row="5"
+               IsReadOnly="True"
+               VerticalScrollBarVisibility="Auto"
+               HorizontalScrollBarVisibility="Auto"
+               FontFamily="Consolas"
+               FontSize="11"
+               Text="{Binding AuditText}" />
     </Grid>
   </Grid>
 </UserControl>

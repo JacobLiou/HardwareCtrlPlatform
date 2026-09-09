@@ -4,7 +4,8 @@ using Device.Contracts.Common;
 
 namespace Device.Client.Proxies;
 
-public sealed class UdlPowerMeterProxy(IUdlServerClient client, DeviceIdentity identity) : IOpticalPowerMeter
+public sealed class UdlPowerMeterProxy(IUdlServerClient client, DeviceIdentity identity)
+    : IOpticalPowerMeter, IDeviceConnection
 {
     public DeviceIdentity Identity { get; } = identity;
 
@@ -21,6 +22,15 @@ public sealed class UdlPowerMeterProxy(IUdlServerClient client, DeviceIdentity i
 
         return result;
     }
+
+    public Task<DeviceResult> ConnectAsync(CancellationToken cancellationToken) =>
+        SendConnectionAsync("Connect", cancellationToken);
+
+    public Task<DeviceResult> DisconnectAsync(CancellationToken cancellationToken) =>
+        SendConnectionAsync("Disconnect", cancellationToken);
+
+    public Task<DeviceResult> ReconnectAsync(CancellationToken cancellationToken) =>
+        SendConnectionAsync("Reconnect", cancellationToken);
 
     public Task<DeviceResult<OpticalPower>> ReadPowerAsync(int channel, CancellationToken cancellationToken)
     {
@@ -40,5 +50,17 @@ public sealed class UdlPowerMeterProxy(IUdlServerClient client, DeviceIdentity i
             "SetWavelength",
             new Dictionary<string, object?> { ["wavelengthNm"] = wavelengthNm });
         return client.SendAsync(command, cancellationToken);
+    }
+
+    private async Task<DeviceResult> SendConnectionAsync(string operation, CancellationToken cancellationToken)
+    {
+        var command = DeviceCommand.Create(Identity.DeviceId, "IDeviceConnection", operation);
+        var result = await client.SendAsync(command, cancellationToken).ConfigureAwait(false);
+        if (result.Success)
+        {
+            State = operation == "Disconnect" ? DeviceState.Offline : DeviceState.Online;
+        }
+
+        return result;
     }
 }

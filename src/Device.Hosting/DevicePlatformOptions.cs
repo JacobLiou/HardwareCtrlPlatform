@@ -1,4 +1,5 @@
 using Device.Server.Registry;
+using Device.Simulators;
 
 namespace Device.Hosting;
 
@@ -7,6 +8,9 @@ public sealed class DevicePlatformOptions
     public const string SectionName = "Devices";
 
     public List<DeviceEntryOptions> Entries { get; set; } = [];
+
+    /// <summary>Simulator-only fault injection (ignored for Udl/Native).</summary>
+    public FaultInjectionOptions FaultInjection { get; set; } = new();
 
     public IReadOnlyList<DeviceDefinition> ToDefinitions()
     {
@@ -27,6 +31,11 @@ public sealed class DeviceEntryOptions
     public string Provider { get; set; } = nameof(DeviceProviderKind.Simulator);
     public string DriverName { get; set; } = "";
     public string? DisplayName { get; set; }
+
+    /// <summary>
+    /// Optional lock / UDL channel key. Effective resource key = ResourceId ?? DeviceId.
+    /// Same ResourceId serializes commands across devices; different ids allow parallel execute.
+    /// </summary>
     public string? ResourceId { get; set; }
 
     public DeviceDefinition ToDefinition()

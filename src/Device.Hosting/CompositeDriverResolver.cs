@@ -16,17 +16,21 @@ public sealed class CompositeDriverResolver : IDeviceDriverResolver
     private readonly SimulatorDriverResolver _simulator = new();
     private readonly UdlComDriverResolver _udlCom;
     private readonly NativeSampleDriverResolver _native = new();
+    private readonly SimulatorFaultInjector? _faultInjector;
 
-    public CompositeDriverResolver(Func<UdlEngineSession>? udlSessionFactory = null)
+    public CompositeDriverResolver(
+        Func<UdlEngineSession>? udlSessionFactory = null,
+        SimulatorFaultInjector? faultInjector = null)
     {
         _udlCom = new UdlComDriverResolver(udlSessionFactory);
+        _faultInjector = faultInjector;
     }
 
     public IDevice Resolve(DeviceDefinition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
 
-        return definition.Provider switch
+        var device = definition.Provider switch
         {
             DeviceProviderKind.Simulator => _simulator.Resolve(definition),
 
@@ -44,11 +48,20 @@ public sealed class CompositeDriverResolver : IDeviceDriverResolver
             _ => throw new NotSupportedException(
                 $"No driver for Provider={definition.Provider}, Driver={definition.DriverName}, DeviceId={definition.DeviceId}.")
         };
+
+        if (device is SimulatedDeviceBase simulated && _faultInjector is not null)
+        {
+            simulated.FaultInjector = _faultInjector;
+        }
+
+        return device;
     }
 
     private static UdlStubPowerMeter CreateStubPowerMeter(DeviceDefinition definition)
     {
         var identity = new DeviceIdentity(definition.DeviceId, definition.DeviceType, definition.DisplayName);
-        return new UdlStubPowerMeter(identity);
+        var meter = new UdlStubPowerMeter(identity);
+        meter.ConnectAsync(CancellationToken.None).GetAwaiter().GetResult();
+        return meter;
     }
 }

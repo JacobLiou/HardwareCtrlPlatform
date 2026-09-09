@@ -3,7 +3,7 @@ using Device.Contracts.Common;
 
 namespace Device.Drivers.Udl;
 
-public sealed class UdlComPowerMeter : IOpticalPowerMeter
+public sealed class UdlComPowerMeter : IOpticalPowerMeter, IDeviceConnection
 {
     public const string DriverName = "UdlComPowerMeter";
 
@@ -22,6 +22,15 @@ public sealed class UdlComPowerMeter : IOpticalPowerMeter
 
     public DeviceState State { get; private set; }
 
+    public Task<DeviceResult> ConnectAsync(CancellationToken cancellationToken) =>
+        UdlDeviceConnection.ConnectAsync(Identity, _session, s => State = s, cancellationToken);
+
+    public Task<DeviceResult> DisconnectAsync(CancellationToken cancellationToken) =>
+        UdlDeviceConnection.DisconnectAsync(Identity, s => State = s, cancellationToken);
+
+    public Task<DeviceResult> ReconnectAsync(CancellationToken cancellationToken) =>
+        UdlDeviceConnection.ReconnectAsync(DisconnectAsync, ConnectAsync, cancellationToken);
+
     public Task<DeviceResult<DeviceHealth>> GetHealthAsync(CancellationToken cancellationToken)
     {
         var health = new DeviceHealth(
@@ -34,6 +43,14 @@ public sealed class UdlComPowerMeter : IOpticalPowerMeter
 
     public Task<DeviceResult<OpticalPower>> ReadPowerAsync(int channel, CancellationToken cancellationToken)
     {
+        if (State == DeviceState.Offline)
+        {
+            return Task.FromResult(DeviceResult<OpticalPower>.Fail(
+                DeviceErrorCode.Offline,
+                "UDL power meter is offline. Call ConnectAsync first.",
+                Identity.DeviceId));
+        }
+
         if (channel < 0)
         {
             return Task.FromResult(DeviceResult<OpticalPower>.Fail(
@@ -70,6 +87,14 @@ public sealed class UdlComPowerMeter : IOpticalPowerMeter
 
     public Task<DeviceResult> SetWavelengthAsync(double wavelengthNm, CancellationToken cancellationToken)
     {
+        if (State == DeviceState.Offline)
+        {
+            return Task.FromResult(DeviceResult.Fail(
+                DeviceErrorCode.Offline,
+                "UDL power meter is offline. Call ConnectAsync first.",
+                Identity.DeviceId));
+        }
+
         if (wavelengthNm <= 0)
         {
             return Task.FromResult(DeviceResult.Fail(

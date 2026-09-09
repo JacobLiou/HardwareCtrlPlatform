@@ -4,17 +4,15 @@ using Device.Contracts.Common;
 namespace Device.Drivers.Samples;
 
 /// <summary>
-/// Demo "self-implemented" driver: mimics a tiny inline protocol (not SerialPort),
-/// e.g. what you would write after reading SCPI/vendor notes without DeviceControl.
+/// Demo "self-implemented" driver: mimics a tiny inline protocol (not SerialPort).
 /// </summary>
-public sealed class CustomInlinePowerMeter : IOpticalPowerMeter
+public sealed class CustomInlinePowerMeter : IOpticalPowerMeter, IDeviceConnection
 {
     public const string DriverName = "CustomInlinePowerMeter";
     public const double FingerprintPowerDbm = -11.0;
 
     private readonly object _gate = new();
     private double _wavelengthNm = 1550;
-    private bool _connected;
 
     public CustomInlinePowerMeter(DeviceIdentity identity)
     {
@@ -30,28 +28,48 @@ public sealed class CustomInlinePowerMeter : IOpticalPowerMeter
     {
         var health = new DeviceHealth(
             State,
-            IsHealthy: _connected,
-            Message: _connected ? "CUSTOM-INLINE connected" : "CUSTOM-INLINE offline",
+            IsHealthy: State == DeviceState.Online,
+            Message: State == DeviceState.Online ? "CUSTOM-INLINE connected" : "CUSTOM-INLINE offline",
             CheckedAt: DateTimeOffset.UtcNow);
         return Task.FromResult(DeviceResult<DeviceHealth>.Ok(health, Identity.DeviceId));
     }
 
-    public Task ConnectAsync(CancellationToken cancellationToken)
+    public Task<DeviceResult> ConnectAsync(CancellationToken cancellationToken)
     {
         lock (_gate)
         {
-            _connected = true;
             State = DeviceState.Online;
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(DeviceResult.Ok(Identity.DeviceId));
+    }
+
+    public Task<DeviceResult> DisconnectAsync(CancellationToken cancellationToken)
+    {
+        lock (_gate)
+        {
+            State = DeviceState.Offline;
+        }
+
+        return Task.FromResult(DeviceResult.Ok(Identity.DeviceId));
+    }
+
+    public async Task<DeviceResult> ReconnectAsync(CancellationToken cancellationToken)
+    {
+        var d = await DisconnectAsync(cancellationToken).ConfigureAwait(false);
+        if (!d.Success)
+        {
+            return d;
+        }
+
+        return await ConnectAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public Task<DeviceResult<OpticalPower>> ReadPowerAsync(int channel, CancellationToken cancellationToken)
     {
         lock (_gate)
         {
-            if (!_connected)
+            if (State == DeviceState.Offline)
             {
                 return Task.FromResult(DeviceResult<OpticalPower>.Fail(
                     DeviceErrorCode.Offline,
@@ -67,7 +85,6 @@ public sealed class CustomInlinePowerMeter : IOpticalPowerMeter
                     Identity.DeviceId));
             }
 
-            // Fake "protocol": power depends slightly on wavelength to show custom logic.
             var value = FingerprintPowerDbm + (_wavelengthNm - 1550) * 0.001;
             var power = new OpticalPower(value, "dBm", _wavelengthNm);
             return Task.FromResult(DeviceResult<OpticalPower>.Ok(power, Identity.DeviceId));
@@ -86,7 +103,7 @@ public sealed class CustomInlinePowerMeter : IOpticalPowerMeter
 
         lock (_gate)
         {
-            if (!_connected)
+            if (State == DeviceState.Offline)
             {
                 return Task.FromResult(DeviceResult.Fail(
                     DeviceErrorCode.Offline,

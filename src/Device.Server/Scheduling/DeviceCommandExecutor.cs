@@ -3,6 +3,9 @@ using System.Collections.Concurrent;
 
 namespace Device.Server.Scheduling;
 
+/// <summary>
+/// Default scheduler: one SemaphoreSlim per resource id (serial), independent across ids (parallel).
+/// </summary>
 public sealed class DeviceCommandExecutor : IDeviceCommandExecutor
 {
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new(StringComparer.OrdinalIgnoreCase);

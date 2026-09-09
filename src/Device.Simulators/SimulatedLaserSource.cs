@@ -36,14 +36,20 @@ public sealed class SimulatedLaserSource : SimulatedDeviceBase, ILaserSource
         }
     }
 
-    public Task<DeviceResult> SetWavelengthAsync(double wavelengthNm, CancellationToken cancellationToken)
+    public async Task<DeviceResult> SetWavelengthAsync(double wavelengthNm, CancellationToken cancellationToken)
     {
+        var early = await BeginOperationAsync(cancellationToken).ConfigureAwait(false);
+        if (early is not null)
+        {
+            return early;
+        }
+
         if (wavelengthNm <= 0)
         {
-            return Task.FromResult(DeviceResult.Fail(
+            return DeviceResult.Fail(
                 DeviceErrorCode.InvalidArgument,
                 "Wavelength must be positive (nm).",
-                Identity.DeviceId));
+                Identity.DeviceId);
         }
 
         lock (_gate)
@@ -51,16 +57,22 @@ public sealed class SimulatedLaserSource : SimulatedDeviceBase, ILaserSource
             _wavelengthNm = wavelengthNm;
         }
 
-        return Task.FromResult(DeviceResult.Ok(Identity.DeviceId));
+        return DeviceResult.Ok(Identity.DeviceId);
     }
 
-    public Task<DeviceResult> SetOutputAsync(bool enabled, CancellationToken cancellationToken)
+    public async Task<DeviceResult> SetOutputAsync(bool enabled, CancellationToken cancellationToken)
     {
+        var early = await BeginOperationAsync(cancellationToken).ConfigureAwait(false);
+        if (early is not null)
+        {
+            return early;
+        }
+
         lock (_gate)
         {
             _outputEnabled = enabled;
         }
 
-        return Task.FromResult(DeviceResult.Ok(Identity.DeviceId));
+        return DeviceResult.Ok(Identity.DeviceId);
     }
 }

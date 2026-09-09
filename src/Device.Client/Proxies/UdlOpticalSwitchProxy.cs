@@ -4,7 +4,8 @@ using Device.Contracts.Common;
 
 namespace Device.Client.Proxies;
 
-public sealed class UdlOpticalSwitchProxy(IUdlServerClient client, DeviceIdentity identity) : IOpticalSwitch
+public sealed class UdlOpticalSwitchProxy(IUdlServerClient client, DeviceIdentity identity)
+    : IOpticalSwitch, IDeviceConnection
 {
     public DeviceIdentity Identity { get; } = identity;
 
@@ -22,6 +23,15 @@ public sealed class UdlOpticalSwitchProxy(IUdlServerClient client, DeviceIdentit
         return result;
     }
 
+    public Task<DeviceResult> ConnectAsync(CancellationToken cancellationToken) =>
+        SendConnectionAsync("Connect", cancellationToken);
+
+    public Task<DeviceResult> DisconnectAsync(CancellationToken cancellationToken) =>
+        SendConnectionAsync("Disconnect", cancellationToken);
+
+    public Task<DeviceResult> ReconnectAsync(CancellationToken cancellationToken) =>
+        SendConnectionAsync("Reconnect", cancellationToken);
+
     public Task<DeviceResult> SwitchToAsync(int inputPort, int outputPort, CancellationToken cancellationToken)
     {
         var command = DeviceCommand.Create(
@@ -34,5 +44,17 @@ public sealed class UdlOpticalSwitchProxy(IUdlServerClient client, DeviceIdentit
                 ["outputPort"] = outputPort
             });
         return client.SendAsync(command, cancellationToken);
+    }
+
+    private async Task<DeviceResult> SendConnectionAsync(string operation, CancellationToken cancellationToken)
+    {
+        var command = DeviceCommand.Create(Identity.DeviceId, "IDeviceConnection", operation);
+        var result = await client.SendAsync(command, cancellationToken).ConfigureAwait(false);
+        if (result.Success)
+        {
+            State = operation == "Disconnect" ? DeviceState.Offline : DeviceState.Online;
+        }
+
+        return result;
     }
 }

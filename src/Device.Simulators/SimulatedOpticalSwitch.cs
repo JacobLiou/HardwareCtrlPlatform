@@ -25,14 +25,20 @@ public sealed class SimulatedOpticalSwitch : SimulatedDeviceBase, IOpticalSwitch
         }
     }
 
-    public Task<DeviceResult> SwitchToAsync(int inputPort, int outputPort, CancellationToken cancellationToken)
+    public async Task<DeviceResult> SwitchToAsync(int inputPort, int outputPort, CancellationToken cancellationToken)
     {
+        var early = await BeginOperationAsync(cancellationToken).ConfigureAwait(false);
+        if (early is not null)
+        {
+            return early;
+        }
+
         if (inputPort <= 0 || outputPort <= 0)
         {
-            return Task.FromResult(DeviceResult.Fail(
+            return DeviceResult.Fail(
                 DeviceErrorCode.InvalidArgument,
                 "Input and output ports must be positive.",
-                Identity.DeviceId));
+                Identity.DeviceId);
         }
 
         lock (_gate)
@@ -41,6 +47,6 @@ public sealed class SimulatedOpticalSwitch : SimulatedDeviceBase, IOpticalSwitch
             _outputPort = outputPort;
         }
 
-        return Task.FromResult(DeviceResult.Ok(Identity.DeviceId));
+        return DeviceResult.Ok(Identity.DeviceId);
     }
 }

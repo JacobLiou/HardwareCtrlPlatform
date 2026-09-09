@@ -49,8 +49,8 @@ It is intentionally free of product station business logic.
 | `Device.Client` | Commands + proxies + in-memory client |
 | `Device.Drivers.Udl` | UDL2 COM adapters for capabilities |
 | `Device.Drivers.Samples` | Native/inline sample driver |
-| `Device.Hosting` | Config + composite resolver + `AddDevicePlatform` |
-| `Device.Simulators` | Simulator devices + `SimulatorPlatformFactory` |
+| `Device.Hosting` | Config + composite resolver + lifecycle + `AddDevicePlatform` |
+| `Device.Simulators` | Simulator devices + fault injection + `SimulatorPlatformFactory` |
 | `Station.Workflow` | Workflow shell: cancel / timeout / Fault / Reset |
 | `Station.App` | WPF station template |
 
@@ -58,10 +58,13 @@ It is intentionally free of product station business logic.
 
 | Type | Where | Role |
 |------|-------|------|
+| `IDeviceConnection` | `Device.Contracts` | Connect / Disconnect / Reconnect |
+| `IDeviceCommandAuditor` | `Device.Contracts` | Command audit sink |
+| `IDevicePlatformLifecycle` | `Device.Hosting` | ConnectAll / DisconnectAll |
 | `IOpticalPowerMeter` / `ILaserSource` / `IOpticalSwitch` | `Device.Contracts` | Capability contracts |
 | `CompositeDriverResolver` | `Device.Hosting` | Simulator / Udl / Native routing |
 | `AddDevicePlatform` | `Device.Hosting` | DI bootstrap from `Devices` config |
-| `InMemoryUdlServerClient` | `Device.Client` | In-proc bridge to runtime |
+| `InMemoryUdlServerClient` | `Device.Client` | In-proc bridge to runtime (+ audit) |
 | `StationWorkflowBase` | `Station.Workflow` | Abort / timeout / Fault / Reset |
 | `WorkflowStepRunner` | `Station.Workflow` | Per-step timeout + bounded retry |
 | `IStationWorkflow` | `Station.Workflow` | Station use-case surface |
@@ -73,6 +76,7 @@ It is intentionally free of product station business logic.
 ## Docs
 
 - `docs/Device-Capability-Catalog.md`
+- `docs/Device-Runtime.md`
 - `docs/UDL-Device-Platform-README.md`
 - `docs/Error-Code-Catalog.md`
 - `docs/Adding-Native-Driver.md`
@@ -80,3 +84,4 @@ It is intentionally free of product station business logic.
 - `docs/superpowers/specs/2026-09-09-hardwarectrlplatform-skeleton-design.md`
 - `docs/superpowers/specs/2026-09-09-p1-device-hosting-design.md`
 - `docs/superpowers/specs/2026-09-09-p2-workflow-stability-design.md`
+- `docs/superpowers/specs/2026-09-09-p3-device-runtime-design.md`

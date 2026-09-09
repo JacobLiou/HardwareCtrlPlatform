@@ -3,7 +3,7 @@ using Device.Contracts.Common;
 
 namespace Device.Drivers.Udl;
 
-public sealed class UdlComOpticalSwitch : IOpticalSwitch
+public sealed class UdlComOpticalSwitch : IOpticalSwitch, IDeviceConnection
 {
     public const string DriverName = "UdlComOpticalSwitch";
 
@@ -22,6 +22,15 @@ public sealed class UdlComOpticalSwitch : IOpticalSwitch
 
     public DeviceState State { get; private set; }
 
+    public Task<DeviceResult> ConnectAsync(CancellationToken cancellationToken) =>
+        UdlDeviceConnection.ConnectAsync(Identity, _session, s => State = s, cancellationToken);
+
+    public Task<DeviceResult> DisconnectAsync(CancellationToken cancellationToken) =>
+        UdlDeviceConnection.DisconnectAsync(Identity, s => State = s, cancellationToken);
+
+    public Task<DeviceResult> ReconnectAsync(CancellationToken cancellationToken) =>
+        UdlDeviceConnection.ReconnectAsync(DisconnectAsync, ConnectAsync, cancellationToken);
+
     public Task<DeviceResult<DeviceHealth>> GetHealthAsync(CancellationToken cancellationToken)
     {
         var health = new DeviceHealth(
@@ -34,6 +43,14 @@ public sealed class UdlComOpticalSwitch : IOpticalSwitch
 
     public Task<DeviceResult> SwitchToAsync(int inputPort, int outputPort, CancellationToken cancellationToken)
     {
+        if (State == DeviceState.Offline)
+        {
+            return Task.FromResult(DeviceResult.Fail(
+                DeviceErrorCode.Offline,
+                "UDL optical switch is offline. Call ConnectAsync first.",
+                Identity.DeviceId));
+        }
+
         if (inputPort < 0 || outputPort < 0)
         {
             return Task.FromResult(DeviceResult.Fail(

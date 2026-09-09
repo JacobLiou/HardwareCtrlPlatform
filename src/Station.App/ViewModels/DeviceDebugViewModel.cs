@@ -29,13 +29,18 @@ public sealed class DeviceListItem
 public partial class DeviceDebugViewModel : ObservableObject
 {
     private readonly IUdlServerClient _client;
+    private readonly IDeviceCommandAuditor? _auditor;
     private IDevice? _activeDevice;
     private string? _panelKind;
     private readonly StringBuilder _log = new();
 
-    public DeviceDebugViewModel(IUdlServerClient client, IReadOnlyList<DeviceDefinition> definitions)
+    public DeviceDebugViewModel(
+        IUdlServerClient client,
+        IReadOnlyList<DeviceDefinition> definitions,
+        IDeviceCommandAuditor? auditor = null)
     {
         _client = client;
+        _auditor = auditor;
         foreach (var definition in definitions)
         {
             Devices.Add(new DeviceListItem(definition));
@@ -98,6 +103,9 @@ public partial class DeviceDebugViewModel : ObservableObject
     [ObservableProperty]
     private string _logText = "";
 
+    [ObservableProperty]
+    private string _auditText = "";
+
     partial void OnSelectedDeviceChanged(DeviceListItem? value)
     {
         _activeDevice = null;
@@ -137,6 +145,60 @@ public partial class DeviceDebugViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task ConnectAsync()
+    {
+        if (_activeDevice is not IDeviceConnection connection)
+        {
+            AppendLog("Connect: device does not implement IDeviceConnection");
+            return;
+        }
+
+        var result = await connection.ConnectAsync(CancellationToken.None);
+        AppendLog(result.Success ? "Connect OK" : $"Connect FAIL: {result.ErrorCode} {result.Message}");
+        RefreshAuditPanel();
+        if (result.Success)
+        {
+            await RefreshHealthAsync();
+        }
+    }
+
+    [RelayCommand]
+    private async Task DisconnectAsync()
+    {
+        if (_activeDevice is not IDeviceConnection connection)
+        {
+            AppendLog("Disconnect: device does not implement IDeviceConnection");
+            return;
+        }
+
+        var result = await connection.DisconnectAsync(CancellationToken.None);
+        AppendLog(result.Success ? "Disconnect OK" : $"Disconnect FAIL: {result.ErrorCode} {result.Message}");
+        RefreshAuditPanel();
+        if (result.Success)
+        {
+            await RefreshHealthAsync();
+        }
+    }
+
+    [RelayCommand]
+    private async Task ReconnectAsync()
+    {
+        if (_activeDevice is not IDeviceConnection connection)
+        {
+            AppendLog("Reconnect: device does not implement IDeviceConnection");
+            return;
+        }
+
+        var result = await connection.ReconnectAsync(CancellationToken.None);
+        AppendLog(result.Success ? "Reconnect OK" : $"Reconnect FAIL: {result.ErrorCode} {result.Message}");
+        RefreshAuditPanel();
+        if (result.Success)
+        {
+            await RefreshHealthAsync();
+        }
+    }
+
+    [RelayCommand]
     private async Task RefreshHealthAsync()
     {
         if (_activeDevice is null)
@@ -156,6 +218,8 @@ public partial class DeviceDebugViewModel : ObservableObject
             HealthText = $"FAIL {result.ErrorCode}: {result.Message}";
             AppendLog($"Health FAIL: {HealthText}");
         }
+
+        RefreshAuditPanel();
     }
 
     [RelayCommand]
@@ -178,6 +242,8 @@ public partial class DeviceDebugViewModel : ObservableObject
             UplinkValue = $"FAIL {result.ErrorCode}";
             AppendLog($"ReadPower FAIL: {result.ErrorCode} {result.Message}");
         }
+
+        RefreshAuditPanel();
     }
 
     [RelayCommand]
@@ -193,6 +259,7 @@ public partial class DeviceDebugViewModel : ObservableObject
         AppendLog(result.Success
             ? $"SetWavelength OK: {WavelengthNm} nm"
             : $"SetWavelength FAIL: {result.ErrorCode} {result.Message}");
+        RefreshAuditPanel();
     }
 
     [RelayCommand]
@@ -208,6 +275,7 @@ public partial class DeviceDebugViewModel : ObservableObject
         AppendLog(result.Success
             ? $"Laser λ OK: {WavelengthNm} nm"
             : $"Laser λ FAIL: {result.ErrorCode} {result.Message}");
+        RefreshAuditPanel();
     }
 
     [RelayCommand]
@@ -223,6 +291,7 @@ public partial class DeviceDebugViewModel : ObservableObject
         AppendLog(result.Success
             ? $"Laser Output OK: {LaserOutputEnabled}"
             : $"Laser Output FAIL: {result.ErrorCode} {result.Message}");
+        RefreshAuditPanel();
     }
 
     [RelayCommand]
@@ -238,6 +307,25 @@ public partial class DeviceDebugViewModel : ObservableObject
         AppendLog(result.Success
             ? $"SwitchTo OK: {InputPort}→{OutputPort}"
             : $"SwitchTo FAIL: {result.ErrorCode} {result.Message}");
+        RefreshAuditPanel();
+    }
+
+    [RelayCommand]
+    private void RefreshAudit() => RefreshAuditPanel();
+
+    private void RefreshAuditPanel()
+    {
+        if (_auditor is null)
+        {
+            AuditText = "(no auditor registered)";
+            return;
+        }
+
+        var lines = _auditor.GetRecent(40)
+            .Select(e =>
+                $"{e.TimestampUtc:HH:mm:ss.fff} {e.DeviceId}/{e.ResourceId} {e.Capability}.{e.Operation} " +
+                $"{(e.Success ? "OK" : e.ErrorCode.ToString())} {e.DurationMs:F1}ms {e.Message}");
+        AuditText = string.Join(Environment.NewLine, lines);
     }
 
     private void AppendLog(string line)
