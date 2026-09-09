@@ -66,7 +66,9 @@ It is intentionally free of product station business logic.
 | `WorkflowStepRunner` | `Station.Workflow` | Per-step timeout + bounded retry |
 | `IStationWorkflow` | `Station.Workflow` | Station use-case surface |
 | `EmptyStationWorkflow` | `Station.Workflow` | Template no-op implementation |
-| `MainViewModel` | `Station.App` | Start / Abort / Reset + device count |
+| `MainViewModel` | `Station.App` | Start / Abort / Reset |
+| `DeviceDebugViewModel` | `Station.App` | Hsl-style device debug console |
+| `CapabilityProxyFactory` | `Device.Client` | DeviceType → capability proxy |
 
 ## Docs
 
@@ -74,6 +76,7 @@ It is intentionally free of product station business logic.
 - `docs/UDL-Device-Platform-README.md`
 - `docs/Error-Code-Catalog.md`
 - `docs/Adding-Native-Driver.md`
+- `docs/Device-Debug-Console.md`
 - `docs/superpowers/specs/2026-09-09-hardwarectrlplatform-skeleton-design.md`
 - `docs/superpowers/specs/2026-09-09-p1-device-hosting-design.md`
 - `docs/superpowers/specs/2026-09-09-p2-workflow-stability-design.md`

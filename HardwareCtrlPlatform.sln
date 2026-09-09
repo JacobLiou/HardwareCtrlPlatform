@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Station.Workflow.Tests", "t
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Device.Hosting.Tests", "tests\Device.Hosting.Tests\Device.Hosting.Tests.csproj", "{C5555555-5555-4555-8555-555555555555}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Station.App.Tests", "tests\Station.App.Tests\Station.App.Tests.csproj", "{C6666666-6666-4666-8666-666666666666}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,10 @@ Global
 		{C5555555-5555-4555-8555-555555555555}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5555555-5555-4555-8555-555555555555}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5555555-5555-4555-8555-555555555555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6666666-6666-4666-8666-666666666666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6666666-6666-4666-8666-666666666666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6666666-6666-4666-8666-666666666666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6666666-6666-4666-8666-666666666666}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,5 +116,6 @@ Global
 		{D837B8C0-0FE7-45FC-BA99-71E9186BC99A} = {B1000003-0003-4000-8000-000000000003}
 		{C3333333-3333-4333-8333-333333333333} = {B1000003-0003-4000-8000-000000000003}
 		{C5555555-5555-4555-8555-555555555555} = {B1000003-0003-4000-8000-000000000003}
+		{C6666666-6666-4666-8666-666666666666} = {B1000003-0003-4000-8000-000000000003}
 	EndGlobalSection
 EndGlobal

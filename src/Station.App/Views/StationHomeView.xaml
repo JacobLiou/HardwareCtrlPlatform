@@ -1,0 +1,48 @@
+<UserControl x:Class="Station.App.Views.StationHomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid Margin="24">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TextBlock Grid.Row="0"
+               FontSize="22"
+               FontWeight="SemiBold"
+               Text="{Binding Title}" />
+
+    <StackPanel Grid.Row="1" Margin="0,12,0,0">
+      <TextBlock FontSize="16" Text="{Binding StateText, StringFormat=State: {0}}" />
+      <TextBlock Margin="0,6,0,0" Opacity="0.8" Text="{Binding DevicesText}" />
+      <TextBlock Margin="0,6,0,0"
+                 Foreground="DarkRed"
+                 TextWrapping="Wrap"
+                 Text="{Binding FaultText}" />
+    </StackPanel>
+
+    <TextBlock Grid.Row="2"
+               Margin="0,16,0,0"
+               TextWrapping="Wrap"
+               Opacity="0.75"
+               Text="Station tab: Start / Abort / Reset. Use Devices tab for Hsl-style capability debug (read/write via Device.Client proxies)." />
+
+    <StackPanel Grid.Row="3"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right">
+      <Button Width="100"
+              Margin="0,0,12,0"
+              Content="Start"
+              Command="{Binding StartCommand}" />
+      <Button Width="100"
+              Margin="0,0,12,0"
+              Content="Abort"
+              Command="{Binding AbortCommand}" />
+      <Button Width="100"
+              Content="Reset"
+              Command="{Binding ResetCommand}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

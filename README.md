@@ -31,8 +31,9 @@ dotnet run --project src/Station.App/Station.App.csproj -p:PlatformTarget=x86
 
 1. Copy `Station.App` (or branch from it) and rename namespaces
 2. Replace `EmptyStationWorkflow` with your real state machine in `Station.Workflow` (or a station-specific project)
-3. Configure devices in `appsettings.json` (`Devices:Entries`) — `Provider` = `Simulator` | `Udl` | `Native`
-4. Call `services.AddDevicePlatform(configuration)` (already in the template)
-5. Keep process architecture **x86** when using UDL2 COM
+3. Open **Devices** tab for Hsl-style capability debug (Health / ReadPower / Set λ / Switch)
+4. Configure devices in `appsettings.json` (`Devices:Entries`) — `Provider` = `Simulator` | `Udl` | `Native`
+5. Call `services.AddDevicePlatform(configuration)` (already in the template)
+6. Keep process architecture **x86** when using UDL2 COM
 
 See `docs/overview.md`, `docs/Adding-Native-Driver.md`, and `AGENTS.md`.

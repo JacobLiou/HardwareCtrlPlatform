@@ -4,9 +4,9 @@ namespace Station.App;
 
 public partial class MainWindow
 {
-    public MainWindow(MainViewModel viewModel)
+    public MainWindow(MainShellViewModel shell)
     {
         InitializeComponent();
-        DataContext = viewModel;
+        DataContext = shell;
     }
 }

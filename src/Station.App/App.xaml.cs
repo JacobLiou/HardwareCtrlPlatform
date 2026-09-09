@@ -34,6 +34,8 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IStationWorkflow, EmptyStationWorkflow>();
                 services.AddDevicePlatform(context.Configuration);
                 services.AddSingleton<MainViewModel>();
+                services.AddSingleton<DeviceDebugViewModel>();
+                services.AddSingleton<MainShellViewModel>();
                 services.AddSingleton<MainWindow>();
             })
             .Build();
