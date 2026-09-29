@@ -49,7 +49,8 @@ It is intentionally free of product station business logic.
 | `Device.Client` | Commands + proxies + in-memory client |
 | `Device.Drivers.Udl` | UDL2 COM adapters for capabilities |
 | `Device.Drivers.Samples` | Native/inline sample driver |
-| `Device.Hosting` | Config + composite resolver + lifecycle + `AddDevicePlatform` |
+| `Device.Hosting` | Config + composite resolver + lifecycle + Tag DI + `AddDevicePlatform` |
+| `Device.Tags` | Tag registry, poller, writer adapters, in-memory store |
 | `Device.Simulators` | Simulator devices + fault injection + `SimulatorPlatformFactory` |
 | `Station.Workflow` | Workflow shell: cancel / timeout / Fault / Reset |
 | `Station.App` | WPF station template |
@@ -58,6 +59,8 @@ It is intentionally free of product station business logic.
 
 | Type | Where | Role |
 |------|-------|------|
+| `ITagStore` / `ITagWriter` | `Device.Contracts` | Tag uplink store / downlink writes |
+| `TagPollerHostedService` | `Device.Tags` | Periodic Capability poll |
 | `IDeviceConnection` | `Device.Contracts` | Connect / Disconnect / Reconnect |
 | `IDeviceCommandAuditor` | `Device.Contracts` | Command audit sink |
 | `IDevicePlatformLifecycle` | `Device.Hosting` | ConnectAll / DisconnectAll |
@@ -77,6 +80,7 @@ It is intentionally free of product station business logic.
 
 - `docs/Device-Capability-Catalog.md`
 - `docs/Device-Runtime.md`
+- `docs/Tag-Data-Plane.md`
 - `docs/UDL-Device-Platform-README.md`
 - `docs/Error-Code-Catalog.md`
 - `docs/Adding-Native-Driver.md`
@@ -85,3 +89,4 @@ It is intentionally free of product station business logic.
 - `docs/superpowers/specs/2026-09-09-p1-device-hosting-design.md`
 - `docs/superpowers/specs/2026-09-09-p2-workflow-stability-design.md`
 - `docs/superpowers/specs/2026-09-09-p3-device-runtime-design.md`
+- `docs/superpowers/specs/2026-09-09-p4-tag-data-plane-design.md`

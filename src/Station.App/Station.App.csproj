@@ -21,6 +21,7 @@
     <ProjectReference Include="..\Device.Client\Device.Client.csproj" />
     <ProjectReference Include="..\Device.Contracts\Device.Contracts.csproj" />
     <ProjectReference Include="..\Device.Server\Device.Server.csproj" />
+    <ProjectReference Include="..\Device.Tags\Device.Tags.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">

@@ -38,3 +38,7 @@ Per-device Disconnect never tears down `UdlEngineSession`; only host shutdown sh
 ## Fault injection
 
 `Devices:FaultInjection` applies to Simulator devices only. See `docs/Device-Runtime.md`.
+
+## Tags
+
+`AddDevicePlatform(IConfiguration)` also registers `AddTagDataPlane` from the `Tags` section (`ITagStore`, `ITagWriter`, poller). See `docs/Tag-Data-Plane.md`.

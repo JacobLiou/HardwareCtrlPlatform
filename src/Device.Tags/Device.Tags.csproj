@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Device.Tags</RootNamespace>
+    <AssemblyName>Device.Tags</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Device.Client\Device.Client.csproj" />
+    <ProjectReference Include="..\Device.Contracts\Device.Contracts.csproj" />
+    <ProjectReference Include="..\Device.Server\Device.Server.csproj" />
+  </ItemGroup>
+</Project>

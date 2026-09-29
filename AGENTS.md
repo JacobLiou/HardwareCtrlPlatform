@@ -10,6 +10,7 @@ Personal reusable platform for **quickly scaffolding station HMI / workstation c
 - Prefer Simulator for development; pin **x86** when using UDL2 COM.
 - Workflow stability (BCL only, **no Polly**): Abort cancels cooperatively → Idle; step/run timeout or exception → Fault; Reset clears Fault → Idle. Use `StationWorkflowBase` + `WorkflowStepRunner`.
 - Device runtime (P3): `IDeviceConnection` lifecycle, `ResourceId ?? DeviceId` serial scheduling, command audit at client dispatch, Simulator `Devices:FaultInjection`. See `docs/Device-Runtime.md`. No Polly for device IO in this layer.
+- Tag data plane (P4): config Tags → `ITagStore` / `ITagWriter` + Hosting poller. See `docs/Tag-Data-Plane.md`.
 
 ## Layering
 

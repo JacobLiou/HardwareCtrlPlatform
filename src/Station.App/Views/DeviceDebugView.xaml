@@ -24,9 +24,10 @@
         <RowDefinition Height="Auto" />
         <RowDefinition Height="Auto" />
         <RowDefinition Height="Auto" />
+        <RowDefinition Height="120" />
         <RowDefinition Height="*" />
         <RowDefinition Height="Auto" />
-        <RowDefinition Height="120" />
+        <RowDefinition Height="100" />
       </Grid.RowDefinitions>
 
       <StackPanel Grid.Row="0" Margin="0,0,0,8">
@@ -120,25 +121,61 @@
         </StackPanel>
       </Border>
 
-      <TextBlock Grid.Row="2"
+      <!-- Live Tags -->
+      <Border Grid.Row="2"
+              Padding="8"
+              Margin="0,0,0,8"
+              BorderBrush="#CCC"
+              BorderThickness="1"
+              Visibility="{Binding HasLiveTags, Converter={StaticResource BoolToVisibility}}">
+        <DockPanel>
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <Button DockPanel.Dock="Right"
+                    Width="90"
+                    Content="Refresh Tags"
+                    Command="{Binding RefreshLiveTagsCommand}" />
+            <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" Text="Live Tags" />
+          </DockPanel>
+          <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+            <TextBlock VerticalAlignment="Center" Text="Write" Width="40" />
+            <TextBox Width="120" Text="{Binding TagWriteValue, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Margin="8,0,0,0" Width="90" Content="Write Tag" Command="{Binding WriteSelectedTagCommand}" />
+          </StackPanel>
+          <ListView ItemsSource="{Binding LiveTags}"
+                    SelectedItem="{Binding SelectedLiveTag}"
+                    Height="100">
+            <ListView.View>
+              <GridView>
+                <GridViewColumn Header="TagId" Width="140" DisplayMemberBinding="{Binding TagId}" />
+                <GridViewColumn Header="Value" Width="80" DisplayMemberBinding="{Binding ValueText}" />
+                <GridViewColumn Header="Unit" Width="50" DisplayMemberBinding="{Binding Unit}" />
+                <GridViewColumn Header="Quality" Width="70" DisplayMemberBinding="{Binding Quality}" />
+                <GridViewColumn Header="Updated" Width="90" DisplayMemberBinding="{Binding Updated}" />
+              </GridView>
+            </ListView.View>
+          </ListView>
+        </DockPanel>
+      </Border>
+
+      <TextBlock Grid.Row="3"
                  Margin="0,0,0,4"
                  FontWeight="SemiBold"
                  Text="Log" />
-      <TextBox Grid.Row="3"
+      <TextBox Grid.Row="4"
                IsReadOnly="True"
                VerticalScrollBarVisibility="Auto"
                HorizontalScrollBarVisibility="Auto"
                FontFamily="Consolas"
                Text="{Binding LogText}" />
 
-      <DockPanel Grid.Row="4" Margin="0,8,0,4">
+      <DockPanel Grid.Row="5" Margin="0,8,0,4">
         <Button DockPanel.Dock="Right"
                 Width="90"
                 Content="Refresh Audit"
                 Command="{Binding RefreshAuditCommand}" />
         <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" Text="Audit" />
       </DockPanel>
-      <TextBox Grid.Row="5"
+      <TextBox Grid.Row="6"
                IsReadOnly="True"
                VerticalScrollBarVisibility="Auto"
                HorizontalScrollBarVisibility="Auto"

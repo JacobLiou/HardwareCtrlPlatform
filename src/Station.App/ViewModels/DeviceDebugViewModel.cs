@@ -1,11 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Device.Client;
 using Device.Contracts.Capabilities;
 using Device.Contracts.Common;
+using Device.Contracts.Tags;
 using Device.Server.Registry;
+using Device.Tags;
 
 namespace Station.App.ViewModels;
 
@@ -26,10 +29,35 @@ public sealed class DeviceListItem
     public override string ToString() => Title;
 }
 
+public partial class LiveTagRow : ObservableObject
+{
+    [ObservableProperty]
+    private string _tagId = "";
+
+    [ObservableProperty]
+    private string _valueText = "-";
+
+    [ObservableProperty]
+    private string _unit = "";
+
+    [ObservableProperty]
+    private string _quality = "Unknown";
+
+    [ObservableProperty]
+    private string _updated = "";
+
+    [ObservableProperty]
+    private bool _canWrite;
+}
+
 public partial class DeviceDebugViewModel : ObservableObject
 {
     private readonly IUdlServerClient _client;
     private readonly IDeviceCommandAuditor? _auditor;
+    private readonly ITagStore? _tagStore;
+    private readonly ITagWriter? _tagWriter;
+    private readonly ITagRegistry? _tagRegistry;
+    private readonly DispatcherTimer? _tagRefreshTimer;
     private IDevice? _activeDevice;
     private string? _panelKind;
     private readonly StringBuilder _log = new();
@@ -37,10 +65,17 @@ public partial class DeviceDebugViewModel : ObservableObject
     public DeviceDebugViewModel(
         IUdlServerClient client,
         IReadOnlyList<DeviceDefinition> definitions,
-        IDeviceCommandAuditor? auditor = null)
+        IDeviceCommandAuditor? auditor = null,
+        ITagStore? tagStore = null,
+        ITagWriter? tagWriter = null,
+        ITagRegistry? tagRegistry = null)
     {
         _client = client;
         _auditor = auditor;
+        _tagStore = tagStore;
+        _tagWriter = tagWriter;
+        _tagRegistry = tagRegistry;
+
         foreach (var definition in definitions)
         {
             Devices.Add(new DeviceListItem(definition));
@@ -54,12 +89,29 @@ public partial class DeviceDebugViewModel : ObservableObject
         {
             AppendLog("No devices in Devices:Entries. Edit appsettings.json.");
         }
+
+        RebuildLiveTagRows();
+        if (_tagStore is not null)
+        {
+            _tagStore.Changed += OnTagChanged;
+            _tagRefreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+            _tagRefreshTimer.Tick += (_, _) => RefreshLiveTagsFromStore();
+            _tagRefreshTimer.Start();
+        }
     }
 
     public ObservableCollection<DeviceListItem> Devices { get; } = [];
 
+    public ObservableCollection<LiveTagRow> LiveTags { get; } = [];
+
     [ObservableProperty]
     private DeviceListItem? _selectedDevice;
+
+    [ObservableProperty]
+    private LiveTagRow? _selectedLiveTag;
+
+    [ObservableProperty]
+    private string _tagWriteValue = "";
 
     [ObservableProperty]
     private string _headerText = "Select a device";
@@ -81,6 +133,9 @@ public partial class DeviceDebugViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _hasMappedPanel;
+
+    [ObservableProperty]
+    private bool _hasLiveTags;
 
     [ObservableProperty]
     private int _channel;
@@ -312,6 +367,86 @@ public partial class DeviceDebugViewModel : ObservableObject
 
     [RelayCommand]
     private void RefreshAudit() => RefreshAuditPanel();
+
+    [RelayCommand]
+    private void RefreshLiveTags() => RefreshLiveTagsFromStore();
+
+    [RelayCommand]
+    private async Task WriteSelectedTagAsync()
+    {
+        if (_tagWriter is null || SelectedLiveTag is null || !SelectedLiveTag.CanWrite)
+        {
+            AppendLog("Tag write: no writable tag selected");
+            return;
+        }
+
+        object? value = TagWriteValue;
+        if (bool.TryParse(TagWriteValue, out var b))
+        {
+            value = b;
+        }
+        else if (double.TryParse(TagWriteValue, System.Globalization.NumberStyles.Float,
+                     System.Globalization.CultureInfo.InvariantCulture, out var d))
+        {
+            value = d;
+        }
+
+        var result = await _tagWriter.WriteAsync(SelectedLiveTag.TagId, value, CancellationToken.None);
+        AppendLog(result.Success
+            ? $"Tag write OK: {SelectedLiveTag.TagId}={TagWriteValue}"
+            : $"Tag write FAIL: {result.ErrorCode} {result.Message}");
+        RefreshAuditPanel();
+    }
+
+    private void OnTagChanged(TagSnapshot _)
+    {
+        // DispatcherTimer refreshes UI; avoid cross-thread ObservableCollection edits here.
+    }
+
+    private void RebuildLiveTagRows()
+    {
+        LiveTags.Clear();
+        if (_tagRegistry is null)
+        {
+            HasLiveTags = false;
+            return;
+        }
+
+        foreach (var def in _tagRegistry.Definitions)
+        {
+            LiveTags.Add(new LiveTagRow
+            {
+                TagId = def.TagId,
+                CanWrite = def.Access is TagAccess.Write or TagAccess.ReadWrite,
+                Unit = def.Unit ?? ""
+            });
+        }
+
+        HasLiveTags = LiveTags.Count > 0;
+        RefreshLiveTagsFromStore();
+    }
+
+    private void RefreshLiveTagsFromStore()
+    {
+        if (_tagStore is null)
+        {
+            return;
+        }
+
+        var snaps = _tagStore.Snapshot().ToDictionary(s => s.TagId, StringComparer.OrdinalIgnoreCase);
+        foreach (var row in LiveTags)
+        {
+            if (!snaps.TryGetValue(row.TagId, out var snap))
+            {
+                continue;
+            }
+
+            row.ValueText = snap.Value?.ToString() ?? "-";
+            row.Unit = snap.Unit ?? row.Unit;
+            row.Quality = snap.Quality.ToString();
+            row.Updated = snap.UpdatedUtc.ToLocalTime().ToString("HH:mm:ss.fff");
+        }
+    }
 
     private void RefreshAuditPanel()
     {
