@@ -73,11 +73,11 @@
 ## 建议推进顺序（避免摊大饼）
 
 ```
-P3  Tag 上下行 + 周期采集（数据面）
-P4  Workflow Step 模型 + 步骤 UI 绑定
-P5  Session 本地落盘（追溯最小集）
-P6  Shell 控件库 + Debug 自动刷新/趋势
-P7  报警/互锁
+P3  Tag 上下行 + 周期采集（数据面）          ✔ 完成
+P4  Workflow Step 模型 + 步骤 UI 绑定       ✔ 完成（轨迹/互锁，见 docs/Workflow-Trace-And-Session.md）
+P5  Session 本地落盘（追溯最小集）          ✔ 完成（pending/uploaded + SessionRecorder）
+P6  Shell 控件库 + Debug 自动刷新/趋势      ← 下一步
+P7  报警/互锁体系（定义/确认/锁存）          互锁门控已就绪（IWorkflowInterlock）
 P8  出站适配 + 工程化模板
 ```
 

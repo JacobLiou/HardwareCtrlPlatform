@@ -7,6 +7,7 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
       <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
     <TextBlock Grid.Row="0"
@@ -15,21 +16,60 @@
                Text="{Binding Title}" />
 
     <StackPanel Grid.Row="1" Margin="0,12,0,0">
-      <TextBlock FontSize="16" Text="{Binding StateText, StringFormat=State: {0}}" />
+      <StackPanel Orientation="Horizontal">
+        <TextBlock FontSize="16" Text="{Binding StateText, StringFormat=State: {0}}" />
+        <TextBlock Margin="16,2,0,0"
+                   Opacity="0.8"
+                   Text="{Binding RunElapsedText, StringFormat=Elapsed: {0}}" />
+        <TextBlock Margin="16,2,0,0"
+                   Opacity="0.7"
+                   Text="{Binding LastSessionText}" />
+      </StackPanel>
       <TextBlock Margin="0,6,0,0" Opacity="0.8" Text="{Binding DevicesText}" />
       <TextBlock Margin="0,6,0,0"
                  Foreground="DarkRed"
                  TextWrapping="Wrap"
                  Text="{Binding FaultText}" />
+      <TextBlock Margin="0,4,0,0"
+                 Foreground="DarkOrange"
+                 TextWrapping="Wrap"
+                 Text="{Binding InterlockText}" />
     </StackPanel>
 
-    <TextBlock Grid.Row="2"
-               Margin="0,16,0,0"
-               TextWrapping="Wrap"
-               Opacity="0.75"
-               Text="Station tab: Start / Abort / Reset. Use Devices tab for Hsl-style capability debug (read/write via Device.Client proxies)." />
+    <ListBox Grid.Row="2"
+             Margin="0,12,0,0"
+             ItemsSource="{Binding Steps}"
+             HorizontalContentAlignment="Stretch">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Orientation="Horizontal" Margin="0,3">
+            <Ellipse Width="10"
+                     Height="10"
+                     Margin="0,0,8,0"
+                     VerticalAlignment="Center"
+                     Fill="{Binding StatusBrush}" />
+            <TextBlock Width="160"
+                       FontWeight="SemiBold"
+                       Text="{Binding Name}" />
+            <TextBlock Width="200" Text="{Binding StatusText}" />
+            <TextBlock Width="90"
+                       Opacity="0.7"
+                       Text="{Binding AttemptsText}" />
+            <TextBlock Width="70" Text="{Binding DurationText}" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
 
-    <StackPanel Grid.Row="3"
+    <ListBox Grid.Row="3"
+             Height="140"
+             Margin="0,12,0,0"
+             FontFamily="Consolas"
+             FontSize="11"
+             ItemsSource="{Binding RunLog}" />
+
+    <StackPanel Grid.Row="4"
+                Margin="0,16,0,0"
                 Orientation="Horizontal"
                 HorizontalAlignment="Right">
       <Button Width="100"

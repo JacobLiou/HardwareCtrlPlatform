@@ -9,14 +9,17 @@ Personal reusable platform for **quickly scaffolding station HMI / workstation c
 - No product-specific process (no invented MES fields, no fake device commands).
 - Prefer Simulator for development; pin **x86** when using UDL2 COM.
 - Workflow stability (BCL only, **no Polly**): Abort cancels cooperatively → Idle; step/run timeout or exception → Fault; Reset clears Fault → Idle. Use `StationWorkflowBase` + `WorkflowStepRunner`.
+- Run observability (P5): `WorkflowStepTrace`/`WorkflowRunTrace` + `StepTraceChanged`/`RunCompleted` events; interlocks via `IWorkflowInterlock` (Start rejected → `WorkflowStartRejectedException`, state stays Idle). See `docs/Workflow-Trace-And-Session.md`.
+- Session persistence (P5): `SessionRecorder` subscribes `RunCompleted` → `SessionRecord` → JSON pending/uploaded (`Station.Session`, local save before any upload). No Polly for device IO in this layer.
 - Device runtime (P3): `IDeviceConnection` lifecycle, `ResourceId ?? DeviceId` serial scheduling, command audit at client dispatch, Simulator `Devices:FaultInjection`. See `docs/Device-Runtime.md`. No Polly for device IO in this layer.
 - Tag data plane (P4): config Tags → `ITagStore` / `ITagWriter` + Hosting poller. See `docs/Tag-Data-Plane.md`.
 
 ## Layering
 
 ```text
-Station.App -> Station.Workflow
+Station.App -> Station.Workflow / Station.Session
 Station.App -> Device.Hosting
+Station.Session -> Station.Workflow
 Device.Hosting -> Device.Client / Simulators / Drivers.Udl / Drivers.Samples / Server / Contracts
 ```
 
@@ -24,6 +27,7 @@ Device.Hosting -> Device.Client / Simulators / Drivers.Udl / Drivers.Samples / S
 - Device wiring: `AddDevicePlatform` + `Devices:Entries` (`Simulator` | `Udl` | `Native`).
 - When UDL is incomplete: implement a **Native** driver (see `docs/Adding-Native-Driver.md`).
 - Workflow: explicit states; cancel / timeout / Fault via `StationWorkflowBase` (no Polly).
+- Session: `AddStationSession` + `SessionRecorder` (records every run; pending → uploaded).
 - Drivers and COM stay under `Device.Drivers.*` / Hosting composition only.
 
 ## Stack
